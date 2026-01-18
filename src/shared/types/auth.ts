@@ -35,5 +35,13 @@ export interface RegisterResponse {
 
 export interface LoginResponse {
   accessToken: string;
-  user: User;
+  refreshToken: string;
+  expiresIn: number;
+  userId: string;
+  email: string;
+  role: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  accountStatus: string;
+  createdAt: string;
 }

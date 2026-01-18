@@ -8,7 +8,10 @@ export const authApi = {
   },
 
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+    console.log('[authApi] login called with:', credentials.email);
     const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
+    console.log('[authApi] login response:', response);
+    console.log('[authApi] login response.data:', response.data);
     return response.data;
   },
 

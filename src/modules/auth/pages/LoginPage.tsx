@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, Input } from '@shared/components';
 import { useAuthStore } from '@shared/hooks/useAuth';
 import { authApi } from '@shared/api/authApi';
+import { UserRole } from '@shared/types/auth';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Redirect if already authenticated (only on initial mount)
+  useEffect(() => {
+    if (user) {
+      console.log('[LoginPage] User already authenticated, redirecting...');
+      navigate('/dashboard', { replace: true });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,10 +27,29 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log('[LoginPage] Starting login for:', email);
       const response = await authApi.login({ email, password });
-      setAuth(response.user, response.accessToken);
+      console.log('[LoginPage] Login response received:', response);
+      
+      // Map the flat response to a User object
+      const userObj = {
+        id: response.userId.toString(),
+        email: response.email,
+        role: response.role as UserRole,
+        emailVerified: response.emailVerified,
+        phoneVerified: response.phoneVerified,
+      };
+      
+      console.log('[LoginPage] Mapped user object:', userObj);
+      console.log('[LoginPage] Calling setAuth...');
+      
+      setAuth(userObj, response.accessToken);
+      
+      console.log('[LoginPage] setAuth completed, navigating to dashboard...');
       navigate('/dashboard');
+      console.log('[LoginPage] Navigate called');
     } catch (err: any) {
+      console.error('[LoginPage] Login error:', err);
       setError(err.message || 'Login failed');
     } finally {
       setIsLoading(false);

@@ -1,89 +1,48 @@
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { API_URL, CORRELATION_ID_HEADER, AUTH_TOKEN_HEADER, REQUEST_TIMEOUT } from '../../../shared/constants/config';
-import { generateCorrelationId } from '../../../shared/utils/correlationId';
-import { ApiError } from '../../../shared/types/api';
+import React from 'react';
+import { useAuthStore } from '@shared/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@shared/components';
 
-let accessToken: string | null = null;
+const DashboardPage: React.FC = () => {
+  const { user, clearAuth } = useAuthStore();
+  const navigate = useNavigate();
 
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
+  const handleLogout = () => {
+    clearAuth();
+    navigate('/login');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-gray-900">MyWorld.ai</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-gray-700">{user?.email}</span>
+              <Button onClick={handleLogout} variant="secondary">
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Welcome to your Dashboard!</h2>
+          <p className="text-gray-600">You are successfully logged in.</p>
+          <div className="mt-6 space-y-2">
+            <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>Role:</strong> {user?.role}</p>
+            <p><strong>Email Verified:</strong> {user?.emailVerified ? 'Yes' : 'No'}</p>
+            <p><strong>Phone Verified:</strong> {user?.phoneVerified ? 'Yes' : 'No'}</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 };
 
-export const getAccessToken = (): string | null => {
-  return accessToken;
-};
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: API_URL,
-  timeout: REQUEST_TIMEOUT,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-});
-
-apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const correlationId = generateCorrelationId();
-    config.headers.set(CORRELATION_ID_HEADER, correlationId);
-
-    if (accessToken) {
-      config.headers.set(AUTH_TOKEN_HEADER, `Bearer ${accessToken}`);
-    }
-
-    if (import.meta.env.MODE === 'development') {
-      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
-        correlationId,
-        data: config.data,
-      });
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-apiClient.interceptors.response.use(
-  (response) => {
-    const correlationId = response.headers[CORRELATION_ID_HEADER.toLowerCase()];
-    
-    if (import.meta.env.MODE === 'development') {
-      console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-        correlationId,
-        status: response.status,
-        data: response.data,
-      });
-    }
-
-    return response;
-  },
-  (error: AxiosError<ApiError>) => {
-    const correlationId = error.response?.headers?.[CORRELATION_ID_HEADER.toLowerCase()];
-    
-    const apiError: ApiError = {
-      status: error.response?.status || 500,
-      message: error.response?.data?.message || 'An unexpected error occurred',
-      correlationId: correlationId || error.response?.data?.correlationId,
-      timestamp: error.response?.data?.timestamp || new Date().toISOString(),
-      path: error.response?.data?.path || error.config?.url || '',
-    };
-
-    console.error('[API Error]', {
-      correlationId: apiError.correlationId,
-      status: apiError.status,
-      message: apiError.message,
-      path: apiError.path,
-    });
-
-    if (apiError.status === 401) {
-      setAccessToken(null);
-      window.location.href = '/login';
-    }
-
-    return Promise.reject(apiError);
-  }
-);
-
-export default apiClient;
+export default DashboardPage;
