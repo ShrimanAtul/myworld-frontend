@@ -1,5 +1,5 @@
 const getApiUrl = (): string => {
-  const env = process.env.REACT_APP_ENV || 'local';
+  const env = import.meta.env.VITE_APP_ENV || 'local';
   
   const urls: Record<string, string> = {
     local: 'http://localhost:8080',

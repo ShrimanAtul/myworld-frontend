@@ -31,7 +31,7 @@ apiClient.interceptors.request.use(
       config.headers.set(AUTH_TOKEN_HEADER, `Bearer ${accessToken}`);
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
         correlationId,
         data: config.data,
@@ -49,7 +49,7 @@ apiClient.interceptors.response.use(
   (response) => {
     const correlationId = response.headers[CORRELATION_ID_HEADER.toLowerCase()];
     
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`, {
         correlationId,
         status: response.status,
