@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, Input } from '@shared/components';
 import { useAuthStore } from '@shared/hooks/useAuth';
@@ -7,19 +7,25 @@ import { UserRole } from '@shared/types/auth';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setAuth } = useAuthStore();
+  const { user, accessToken, setAuth } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const hasRedirected = useRef(false);
 
-  // Redirect if already authenticated (only on initial mount)
+  // Redirect if already authenticated
   useEffect(() => {
-    if (user) {
-      console.log('[LoginPage] User already authenticated, redirecting...');
+    // Only redirect if we have BOTH user and accessToken
+    if (user && accessToken && !hasRedirected.current && !isLoading) {
+      console.log('[LoginPage] User already authenticated with valid token, redirecting...');
+      hasRedirected.current = true;
       navigate('/dashboard', { replace: true });
+    } else if (user && !accessToken) {
+      // If we have user but no token, it's a stale state - ignore it
+      console.log('[LoginPage] Stale auth state detected (user without token), staying on login');
     }
-  }, []);
+  }, [user, accessToken, navigate, isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

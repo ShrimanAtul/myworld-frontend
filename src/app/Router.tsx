@@ -11,8 +11,17 @@ import AiAnalysisPage from '../modules/ai/pages/AiAnalysisPage';
 import { useAuthStore } from '../shared/hooks/useAuth';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuthStore();
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
+  const { user, accessToken } = useAuthStore();
+  
+  console.log('[ProtectedRoute] Checking auth:', { hasUser: !!user, hasToken: !!accessToken });
+  
+  if (!user || !accessToken) {
+    console.log('[ProtectedRoute] No user or token, redirecting to login');
+    return <Navigate to="/login" replace />;
+  }
+  
+  console.log('[ProtectedRoute] User authenticated, rendering protected content');
+  return <>{children}</>;
 };
 
 const Router: React.FC = () => {

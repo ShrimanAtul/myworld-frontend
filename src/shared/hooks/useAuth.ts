@@ -21,8 +21,10 @@ export const useAuthStore = create<AuthStore>()(
         console.log('[AuthStore] State updated successfully');
       },
       clearAuth: () => {
+        console.log('[AuthStore] clearAuth called');
         setApiAccessToken(null);
         set({ user: null, accessToken: null, isAuthenticated: false });
+        console.log('[AuthStore] Auth cleared successfully');
       },
     }),
     {

@@ -78,8 +78,20 @@ apiClient.interceptors.response.use(
     });
 
     if (apiError.status === 401) {
+      console.log('[API Client] 401 error, clearing auth and redirecting');
       setAccessToken(null);
-      window.location.href = '/login';
+      // Only redirect if not already on login page
+      if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+        // Import clearAuth dynamically to avoid circular dependencies
+        // Wait for auth to be cleared before redirecting
+        import('@shared/hooks/useAuth').then(({ useAuthStore }) => {
+          useAuthStore.getState().clearAuth();
+          // Use setTimeout to ensure localStorage is updated
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 100);
+        });
+      }
     }
 
     return Promise.reject(apiError);
