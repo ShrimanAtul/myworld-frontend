@@ -58,7 +58,7 @@ const ProfilePage: React.FC = () => {
     }
 
     try {
-      await changePassword.mutateAsync({ oldPassword, newPassword });
+      await changePassword.mutateAsync({ currentPassword: oldPassword, newPassword });
       setPasswordSuccess('Password changed successfully');
       setOldPassword('');
       setNewPassword('');

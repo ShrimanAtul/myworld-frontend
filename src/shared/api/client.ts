@@ -32,7 +32,7 @@ apiClient.interceptors.request.use(
     }
 
     if (import.meta.env.MODE === 'development') {
-      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
+      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, {
         correlationId,
         data: config.data,
       });

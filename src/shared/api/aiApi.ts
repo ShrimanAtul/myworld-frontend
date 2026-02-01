@@ -6,7 +6,6 @@ export const aiApi = {
     const response = await apiClient.post<AiAnalysisResponse>('/ai/analyze', data);
     return response.data;
   },
-
   getCachedResponses: async (type: AiAnalysisType): Promise<CachedAiResponse[]> => {
     const response = await apiClient.get<CachedAiResponse[]>('/ai/cache', {
       params: { type },
@@ -14,15 +13,13 @@ export const aiApi = {
     return response.data;
   },
 
-  deleteCache: async (id: string): Promise<void> => {
+    deleteCache: async (id: string): Promise<void> => {
     await apiClient.delete(`/ai/cache/${id}`);
   },
-
   regenerateCache: async (id: string, data: AiAnalysisRequest): Promise<CachedAiResponse> => {
     const response = await apiClient.post<CachedAiResponse>(`/ai/cache/${id}/regenerate`, data);
     return response.data;
   },
-
   clearCache: async (type: AiAnalysisType): Promise<void> => {
     await apiClient.delete('/ai/cache/clear', {
       params: { type },

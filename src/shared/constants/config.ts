@@ -15,6 +15,7 @@ const getApiUrl = (): string => {
 export const API_BASE_URL = getApiUrl();
 export const API_VERSION = 'v1';
 export const API_URL = `${API_BASE_URL}/api/${API_VERSION}`;
+export const API_PREFIX = '/api/v1';
 
 export const CORRELATION_ID_HEADER = 'X-Correlation-ID';
 export const AUTH_TOKEN_HEADER = 'Authorization';

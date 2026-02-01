@@ -28,9 +28,9 @@ export const taskApi = {
     if (filters?.from) params.append('from', filters.from);
     if (filters?.to) params.append('to', filters.to);
     
-    const response = await apiClient.get<Task[]>('/tasks', {
-      params,
-    });
+      const response = await apiClient.get<Task[]>('/tasks', {
+    params,
+  });
     return response.data;
   },
 
@@ -63,9 +63,9 @@ export const taskApi = {
     if (to) params.append('to', to);
     if (max) params.append('max', max.toString());
 
-    const response = await apiClient.get<string[]>(
-      `/tasks/${id}/instances`,
-      { params }
+      const response = await apiClient.get<string[]>(
+    `/tasks/${id}/instances`,
+    { params }
     );
     return response.data;
   },
