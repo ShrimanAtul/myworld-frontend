@@ -4,8 +4,10 @@ import { useAuthStore } from '@shared/hooks/useAuth';
 import {
   useChangePassword,
   useSendPhoneOtp,
+  useResendPhoneOtp,
   useVerifyPhoneOtp,
   useVerifyEmailOtp,
+  useResendEmailOtp,
   useSessions,
   useLogoutSession,
   useLogoutAllSessions,
@@ -29,10 +31,14 @@ const ProfilePage: React.FC = () => {
   const [emailOtp, setEmailOtp] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
 
+  const [globalSuccessMessage, setGlobalSuccessMessage] = useState('');
+
   const changePassword = useChangePassword();
   const sendPhoneOtp = useSendPhoneOtp();
+  const resendPhoneOtp = useResendPhoneOtp();
   const verifyPhoneOtp = useVerifyPhoneOtp();
   const verifyEmailOtp = useVerifyEmailOtp();
+  const resendEmailOtp = useResendEmailOtp();
   const logoutSession = useLogoutSession();
   const logoutAllSessions = useLogoutAllSessions();
 
@@ -67,7 +73,7 @@ const ProfilePage: React.FC = () => {
     setPhoneMessage('');
     
     try {
-      await sendPhoneOtp.mutateAsync({ phone });
+      await sendPhoneOtp.mutateAsync({ phoneNumber: phone });
       setPhoneStep('verify');
       setPhoneMessage('OTP sent to your phone');
     } catch (err: any) {
@@ -78,13 +84,16 @@ const ProfilePage: React.FC = () => {
   const handleVerifyPhoneOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setPhoneMessage('');
+    setGlobalSuccessMessage('');
     
     try {
-      await verifyPhoneOtp.mutateAsync({ phone, otp: phoneOtp });
-      setPhoneMessage('Phone verified successfully');
+      await verifyPhoneOtp.mutateAsync({ phoneNumber: phone, otp: phoneOtp });
+      setGlobalSuccessMessage('Phone verified successfully! Your account information has been updated.');
       setPhone('');
       setPhoneOtp('');
       setPhoneStep('input');
+      // Scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       setPhoneMessage(err.message || 'Failed to verify OTP');
     }
@@ -93,13 +102,38 @@ const ProfilePage: React.FC = () => {
   const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailMessage('');
+    setGlobalSuccessMessage('');
     
     try {
       await verifyEmailOtp.mutateAsync({ email: user?.email || '', otp: emailOtp });
-      setEmailMessage('Email verified successfully');
+      setGlobalSuccessMessage('Email verified successfully! Your account information has been updated.');
       setEmailOtp('');
+      // Scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       setEmailMessage(err.message || 'Failed to verify email');
+    }
+  };
+
+  const handleResendEmailOtp = async () => {
+    setEmailMessage('');
+    
+    try {
+      await resendEmailOtp.mutateAsync(user?.email || '');
+      setEmailMessage('OTP resent to your email');
+    } catch (err: any) {
+      setEmailMessage(err.message || 'Failed to resend OTP');
+    }
+  };
+
+  const handleResendPhoneOtp = async () => {
+    setPhoneMessage('');
+    
+    try {
+      await resendPhoneOtp.mutateAsync({ phoneNumber: phone });
+      setPhoneMessage('OTP resent to your phone');
+    } catch (err: any) {
+      setPhoneMessage(err.message || 'Failed to resend OTP');
     }
   };
 
@@ -127,6 +161,34 @@ const ProfilePage: React.FC = () => {
     <Layout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Profile & Settings</h1>
+
+        {/* Global Success Message */}
+        {globalSuccessMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-green-800">{globalSuccessMessage}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  type="button"
+                  onClick={() => setGlobalSuccessMessage('')}
+                  className="inline-flex text-green-400 hover:text-green-500 focus:outline-none"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-6">
           {/* Account Information */}
@@ -206,13 +268,23 @@ const ProfilePage: React.FC = () => {
                   placeholder="Enter 6-digit code"
                 />
                 {emailMessage && (
-                  <div className={emailMessage.includes('success') ? 'text-green-600' : 'text-red-600'}>
+                  <div className={emailMessage.includes('success') || emailMessage.includes('resent') ? 'text-green-600' : 'text-red-600'}>
                     {emailMessage}
                   </div>
                 )}
-                <Button type="submit" isLoading={verifyEmailOtp.isPending}>
-                  Verify Email
-                </Button>
+                <div className="flex gap-2">
+                  <Button type="submit" isLoading={verifyEmailOtp.isPending}>
+                    Verify Email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleResendEmailOtp}
+                    isLoading={resendEmailOtp.isPending}
+                  >
+                    Resend OTP
+                  </Button>
+                </div>
               </form>
             </div>
           )}
@@ -241,28 +313,51 @@ const ProfilePage: React.FC = () => {
                   </Button>
                 </form>
               ) : (
-                <form onSubmit={handleVerifyPhoneOtp} className="space-y-4">
-                  <Input
-                    label="Verification Code"
-                    value={phoneOtp}
-                    onChange={(e) => setPhoneOtp(e.target.value)}
-                    required
-                    placeholder="Enter 6-digit code"
-                  />
-                  {phoneMessage && (
-                    <div className={phoneMessage.includes('success') ? 'text-green-600' : 'text-red-600'}>
-                      {phoneMessage}
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Check your phone for the verification code sent to <strong>{phone}</strong>
+                  </p>
+                  <form onSubmit={handleVerifyPhoneOtp} className="space-y-4">
+                    <Input
+                      label="Verification Code"
+                      value={phoneOtp}
+                      onChange={(e) => setPhoneOtp(e.target.value)}
+                      required
+                      placeholder="Enter 6-digit code"
+                    />
+                    {phoneMessage && (
+                      <div className={phoneMessage.includes('success') || phoneMessage.includes('resent') ? 'text-green-600' : 'text-red-600'}>
+                        {phoneMessage}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button type="submit" isLoading={verifyPhoneOtp.isPending}>
+                        Verify Phone
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleResendPhoneOtp}
+                        isLoading={resendPhoneOtp.isPending}
+                      >
+                        Resend OTP
+                      </Button>
                     </div>
-                  )}
-                  <div className="flex gap-2">
-                    <Button type="submit" isLoading={verifyPhoneOtp.isPending}>
-                      Verify
-                    </Button>
-                    <Button type="button" variant="secondary" onClick={() => setPhoneStep('input')}>
-                      Change Number
-                    </Button>
+                  </form>
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhoneStep('input');
+                        setPhoneOtp('');
+                        setPhoneMessage('');
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Use a different phone number
+                    </button>
                   </div>
-                </form>
+                </div>
               )}
             </div>
           )}

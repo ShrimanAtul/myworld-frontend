@@ -15,11 +15,11 @@ export interface ChangePasswordRequest {
 }
 
 export interface SendPhoneOtpRequest {
-  phone: string;
+  phoneNumber: string;
 }
 
 export interface VerifyPhoneOtpRequest {
-  phone: string;
+  phoneNumber: string;
   otp: string;
 }
 

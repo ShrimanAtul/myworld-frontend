@@ -89,6 +89,24 @@ const DashboardPage: React.FC = () => {
                 </span>
               </p>
             </div>
+            {(!user?.emailVerified || !user?.phoneVerified) && (
+              <div className="mt-4 pt-4 border-t">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 mb-2">
+                    {!user?.emailVerified && !user?.phoneVerified
+                      ? 'Your email and phone are not verified.'
+                      : !user?.emailVerified
+                      ? 'Your email is not verified.'
+                      : 'Your phone is not verified.'}
+                  </p>
+                  <Link to="/profile">
+                    <Button size="sm" variant="secondary" className="w-full">
+                      Go to Profile to Verify
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
     </div>

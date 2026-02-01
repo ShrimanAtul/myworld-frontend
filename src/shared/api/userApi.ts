@@ -9,34 +9,44 @@ import {
 
 export const userApi = {
   changePassword: async (data: ChangePasswordRequest): Promise<void> => {
-    await apiClient.post('/api/v1/auth/change-password', data);
+    await apiClient.post('/auth/change-password', data);
   },
 
   sendPhoneOtp: async (data: SendPhoneOtpRequest): Promise<{ message: string }> => {
-    const response = await apiClient.post('/api/v1/auth/otp/send', data);
+    const response = await apiClient.post('/auth/otp/send', data);
+    return response.data;
+  },
+
+  resendPhoneOtp: async (data: SendPhoneOtpRequest): Promise<{ message: string }> => {
+    const response = await apiClient.post('/auth/otp/resend', data);
     return response.data;
   },
 
   verifyPhoneOtp: async (data: VerifyPhoneOtpRequest): Promise<any> => {
-    const response = await apiClient.post('/api/v1/auth/otp/verify', data);
+    const response = await apiClient.post('/auth/phone/verify', data);
     return response.data;
   },
 
   verifyEmailOtp: async (data: VerifyEmailOtpRequest): Promise<any> => {
-    const response = await apiClient.post('/api/v1/auth/email/verify', data);
+    const response = await apiClient.post('/auth/email/verify', data);
+    return response.data;
+  },
+
+  resendEmailOtp: async (email: string): Promise<{ message: string }> => {
+    const response = await apiClient.post('/auth/email/resend', { email });
     return response.data;
   },
 
   getSessions: async (): Promise<Session[]> => {
-    const response = await apiClient.get('/api/v1/sessions');
+    const response = await apiClient.get('/sessions');
     return response.data;
   },
 
   logoutSession: async (sessionId: string): Promise<void> => {
-    await apiClient.delete(`/api/v1/sessions/${sessionId}`);
+    await apiClient.delete(`/sessions/${sessionId}`);
   },
 
   logoutAllSessions: async (): Promise<void> => {
-    await apiClient.delete('/api/v1/sessions');
+    await apiClient.delete('/sessions');
   },
 };

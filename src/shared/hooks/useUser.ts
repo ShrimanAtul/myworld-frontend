@@ -25,29 +25,61 @@ export const useSendPhoneOtp = () => {
   });
 };
 
+export const useResendPhoneOtp = () => {
+  return useMutation({
+    mutationFn: userApi.resendPhoneOtp,
+  });
+};
+
 export const useVerifyPhoneOtp = () => {
-  const { setAuth, user } = useAuthStore();
+  const { setAuth } = useAuthStore();
   
   return useMutation({
     mutationFn: userApi.verifyPhoneOtp,
     onSuccess: (data) => {
-      if (user) {
-        setAuth({ ...user, phoneVerified: true }, data.accessToken);
+      console.log('[useVerifyPhoneOtp] Phone verification successful, response:', data);
+      
+      if (data.accessToken) {
+        console.log('[useVerifyPhoneOtp] Updating auth store with phoneVerified =', data.phoneVerified);
+        setAuth({
+          id: data.userId,
+          email: data.email,
+          role: data.role,
+          emailVerified: data.emailVerified,
+          phoneVerified: data.phoneVerified,
+        }, data.accessToken);
+        console.log('[useVerifyPhoneOtp] Auth store updated successfully');
+      } else {
+        console.error('[useVerifyPhoneOtp] No accessToken in response, cannot update auth store');
       }
     },
   });
 };
 
 export const useVerifyEmailOtp = () => {
-  const { setAuth, user } = useAuthStore();
+  const { setAuth, user, accessToken } = useAuthStore();
   
   return useMutation({
     mutationFn: userApi.verifyEmailOtp,
     onSuccess: (data) => {
-      if (user) {
-        setAuth({ ...user, emailVerified: true }, data.accessToken);
+      console.log('[useVerifyEmailOtp] Email verification successful, response:', data);
+      
+      // Email verification endpoint returns UserResponse (not TokenResponse)
+      // So we need to manually update the user object and keep the existing token
+      if (user && accessToken) {
+        console.log('[useVerifyEmailOtp] Updating auth store with emailVerified = true');
+        setAuth({ ...user, emailVerified: true }, accessToken);
+        console.log('[useVerifyEmailOtp] Auth store updated successfully');
+      } else {
+        console.error('[useVerifyEmailOtp] Missing user or accessToken, cannot update auth store');
       }
     },
+  });
+};
+
+export const useResendEmailOtp = () => {
+  return useMutation({
+    mutationFn: userApi.resendEmailOtp,
   });
 };
 

@@ -7,7 +7,7 @@ export const taskApi = {
    * Create a new task
    */
   createTask: async (data: CreateTaskRequest): Promise<Task> => {
-    const response = await apiClient.post<Task>('/api/v1/tasks', data);
+    const response = await apiClient.post<Task>('/tasks', data);
     return response.data;
   },
 
@@ -15,7 +15,7 @@ export const taskApi = {
    * Get a task by ID
    */
   getTask: async (id: string): Promise<Task> => {
-    const response = await apiClient.get<Task>(`/api/v1/tasks/${id}`);
+    const response = await apiClient.get<Task>(`/tasks/${id}`);
     return response.data;
   },
 
@@ -28,7 +28,7 @@ export const taskApi = {
     if (filters?.from) params.append('from', filters.from);
     if (filters?.to) params.append('to', filters.to);
     
-    const response = await apiClient.get<Task[]>('/api/v1/tasks', {
+    const response = await apiClient.get<Task[]>('/tasks', {
       params,
     });
     return response.data;
@@ -38,7 +38,7 @@ export const taskApi = {
    * Update a task
    */
   updateTask: async (id: string, data: UpdateTaskRequest): Promise<Task> => {
-    const response = await apiClient.put<Task>(`/api/v1/tasks/${id}`, data);
+    const response = await apiClient.put<Task>(`/tasks/${id}`, data);
     return response.data;
   },
 
@@ -46,7 +46,7 @@ export const taskApi = {
    * Delete a task
    */
   deleteTask: async (id: string): Promise<void> => {
-    await apiClient.delete(`/api/v1/tasks/${id}`);
+    await apiClient.delete(`/tasks/${id}`);
   },
 
   /**
@@ -64,7 +64,7 @@ export const taskApi = {
     if (max) params.append('max', max.toString());
 
     const response = await apiClient.get<string[]>(
-      `/api/v1/tasks/${id}/instances`,
+      `/tasks/${id}/instances`,
       { params }
     );
     return response.data;
