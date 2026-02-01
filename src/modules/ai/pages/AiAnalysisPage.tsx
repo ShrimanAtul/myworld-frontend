@@ -51,8 +51,6 @@ const AiAnalysisPage: React.FC = () => {
         return 'Progress Tracking';
       case AiAnalysisType.RECOMMENDATION:
         return 'Recommendations';
-      case AiAnalysisType.SUMMARY:
-        return 'Summary';
       default:
         return type;
     }
