@@ -66,11 +66,19 @@ const GoalsPage: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-sm text-gray-600">Track your long-term goals</p>
-        <Button onClick={() => { setEditingGoal(undefined); setIsFormOpen(true); }}>
-          + New Goal
-        </Button>
+      <div className="mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-sm text-gray-600">Track your long-term goals</p>
+          <Button onClick={() => { setEditingGoal(undefined); setIsFormOpen(true); }}>
+            + New Goal
+          </Button>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <p className="text-xs text-blue-800">
+            <strong>💡 Tip:</strong> Add details in the <strong>Description</strong> field like suitable time (morning/evening), 
+            expected duration, frequency preferences, or any constraints. This helps AI generate better timetables from your goals!
+          </p>
+        </div>
       </div>
 
       {goals.length === 0 ? (

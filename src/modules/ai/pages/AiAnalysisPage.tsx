@@ -52,8 +52,19 @@ const AiAnalysisPage: React.FC = () => {
         return 'Recommendations';
       case AiAnalysisType.SUMMARY:
         return 'Summary';
+      case AiAnalysisType.GENERATE_TIMETABLE:
+        return 'Generate Goal-Based Timetable';
       default:
         return type;
+    }
+  };
+
+  const getTypeTip = (type: AiAnalysisType) => {
+    switch (type) {
+      case AiAnalysisType.GENERATE_TIMETABLE:
+        return 'Add details in your Goals\' Description field (suitable time, duration, preferences) to help AI create a better timetable. Avoid conflicting time preferences across multiple goals.';
+      default:
+        return null;
     }
   };
 
@@ -82,6 +93,13 @@ const AiAnalysisPage: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                {getTypeTip(analysisType) && (
+                  <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-xs text-blue-800">
+                      <strong>💡 Tip:</strong> {getTypeTip(analysisType)}
+                    </p>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

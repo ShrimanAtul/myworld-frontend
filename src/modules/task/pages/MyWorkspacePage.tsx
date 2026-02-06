@@ -47,7 +47,7 @@ const MyWorkspacePage: React.FC = () => {
               }`}
               onClick={() => setActiveTab('timetable')}
             >
-              My Timetable
+              My Timetables
             </button>
           </div>
         </div>
