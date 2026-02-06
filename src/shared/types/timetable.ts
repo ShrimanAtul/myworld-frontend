@@ -1,39 +1,38 @@
-export enum AiAnalysisType {
-  DISCIPLINE = 'DISCIPLINE',
-  PROGRESS = 'PROGRESS',
-  RECOMMENDATION = 'RECOMMENDATION',
-  SUMMARY = 'SUMMARY',
-  GENERATE_TIMETABLE = 'GENERATE_TIMETABLE',
+export enum TimetableType {
+  WORK = 'WORK',
+  STUDY = 'STUDY',
+  EXERCISE = 'EXERCISE',
+  MEETING = 'MEETING',
+  PERSONAL = 'PERSONAL',
+  OTHER = 'OTHER',
 }
 
-export interface AiAnalysisRequest {
-  type: AiAnalysisType;
-  input: string;
+export enum DayOfWeek {
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY',
+  SATURDAY = 'SATURDAY',
+  SUNDAY = 'SUNDAY',
 }
 
-export interface AiAnalysisResponse {
-  content: string;
-  fromCache: boolean;
-  inputTokens: number;
-  outputTokens: number;
-}
-
-export interface CachedAiResponse {
+export interface TimetableCollection {
   id: string;
-  type: AiAnalysisType;
-  responseContent: string;
-  inputTokens: number;
-  outputTokens: number;
-  estimatedCost: number;
-  isRegenerated: boolean;
-  generatedAt: string;
-  status: string;
+  name: string;
+  description?: string;
+  isDefault: boolean;
+  isAiGenerated: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface Timetable {
+  id: string;
   collectionId: string;
   title: string;
   description?: string;
   type: TimetableType;
-
   daysOfWeek: DayOfWeek[];
   startTime: string;
   endTime: string;
