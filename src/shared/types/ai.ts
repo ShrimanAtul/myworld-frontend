@@ -2,6 +2,7 @@ export enum AiAnalysisType {
   DISCIPLINE = 'DISCIPLINE',
   PROGRESS = 'PROGRESS',
   RECOMMENDATION = 'RECOMMENDATION',
+  SUMMARY = 'SUMMARY',
 }
 
 export interface AiAnalysisRequest {

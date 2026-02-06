@@ -9,7 +9,11 @@ import {
   useDeleteTask,
 } from '@shared/hooks/useTasks';
 
-const TasksPage: React.FC = () => {
+interface TasksPageProps {
+  embedded?: boolean;
+}
+
+const TasksPage: React.FC<TasksPageProps> = ({ embedded = false }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'ALL'>('ALL');
@@ -98,25 +102,35 @@ const TasksPage: React.FC = () => {
     {} as Record<TaskStatus, Task[]>
   );
 
-  return (
-    <Layout>
+  const content = (
+    <>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Manage your daily tasks and goals
-              </p>
+      {!embedded && (
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage your daily tasks and goals
+                </p>
+              </div>
+              <Button onClick={handleCreateTask}>+ New Task</Button>
             </div>
-            <Button onClick={handleCreateTask}>+ New Task</Button>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Header for embedded mode */}
+      {embedded && (
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-sm text-gray-600">Manage your daily tasks</p>
+          <Button onClick={handleCreateTask}>+ New Task</Button>
+        </div>
+      )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className={embedded ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'}>
         {/* Filters */}
         <TaskFilters
           status={statusFilter}
@@ -219,8 +233,14 @@ const TasksPage: React.FC = () => {
         task={editingTask}
         isLoading={createTask.isPending || updateTask.isPending}
       />
-    </Layout>
+    </>
   );
+
+  if (embedded) {
+    return content;
+  }
+
+  return <Layout>{content}</Layout>;
 };
 
 export default TasksPage;

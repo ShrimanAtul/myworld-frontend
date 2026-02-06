@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../modules/auth/pages/LoginPage';
 import RegisterPage from '../modules/auth/pages/RegisterPage';
 import DashboardPage from '../modules/task/pages/DashboardPage';
-import TasksPage from '../modules/task/pages/TasksPage';
+import MyWorkspacePage from '../modules/task/pages/MyWorkspacePage';
 import ProfilePage from '../modules/user/pages/ProfilePage';
 import PricingPage from '../modules/subscription/pages/PricingPage';
 import SubscriptionsPage from '../modules/subscription/pages/SubscriptionsPage';
@@ -39,10 +39,10 @@ const Router: React.FC = () => {
           }
         />
         <Route
-          path="/tasks"
+          path="/workspace"
           element={
             <ProtectedRoute>
-              <TasksPage />
+              <MyWorkspacePage />
             </ProtectedRoute>
           }
         />

@@ -5,7 +5,6 @@ import { AiAnalysisType } from '@shared/types/ai';
 
 const AiAnalysisPage: React.FC = () => {
   const [analysisType, setAnalysisType] = useState<AiAnalysisType>(AiAnalysisType.RECOMMENDATION);
-  const [input, setInput] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const analyze = useAiAnalyze();
@@ -16,7 +15,7 @@ const AiAnalysisPage: React.FC = () => {
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await analyze.mutateAsync({ type: analysisType, input });
+      const response = await analyze.mutateAsync({ type: analysisType, input: '' });
       setResult(response);
     } catch (err) {
       console.error('Analysis failed:', err);
@@ -51,6 +50,8 @@ const AiAnalysisPage: React.FC = () => {
         return 'Progress Tracking';
       case AiAnalysisType.RECOMMENDATION:
         return 'Recommendations';
+      case AiAnalysisType.SUMMARY:
+        return 'Summary';
       default:
         return type;
     }
@@ -84,15 +85,13 @@ const AiAnalysisPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Input
+                  Input <span className="text-xs text-orange-600">(Deprecated - Auto-fetches from TODO/Goals/Timetable)</span>
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                  disabled
                   rows={6}
-                  placeholder="Enter task data or context for analysis..."
+                  placeholder="This field will be removed soon. Analysis now automatically fetches data from your TODO list, Goals, and Timetable."
                 />
               </div>
               <Button type="submit" className="w-full" isLoading={analyze.isPending}>
