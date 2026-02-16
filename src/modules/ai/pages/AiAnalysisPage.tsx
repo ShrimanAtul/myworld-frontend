@@ -6,6 +6,7 @@ import { AiAnalysisType } from '@shared/types/ai';
 const AiAnalysisPage: React.FC = () => {
   const [analysisType, setAnalysisType] = useState<AiAnalysisType>(AiAnalysisType.RECOMMENDATION);
   const [result, setResult] = useState<any>(null);
+  const [expandedCache, setExpandedCache] = useState<Set<string>>(new Set());
 
   const analyze = useAiAnalyze();
   const { data: cachedResponses = [], isLoading: cacheLoading } = useCachedResponses(analysisType);
@@ -186,9 +187,25 @@ const AiAnalysisPage: React.FC = () => {
                       </div>
                     </div>
                     {cache.responseContent ? (
-                      <p className="text-sm text-gray-800 line-clamp-3">
-                        {cache.responseContent}
-                      </p>
+                      <>
+                        <p className={`text-sm text-gray-800 whitespace-pre-wrap ${!expandedCache.has(cache.id) ? 'line-clamp-3' : ''}`}>
+                          {cache.responseContent}
+                        </p>
+                        <button
+                          onClick={() => {
+                            const newExpanded = new Set(expandedCache);
+                            if (expandedCache.has(cache.id)) {
+                              newExpanded.delete(cache.id);
+                            } else {
+                              newExpanded.add(cache.id);
+                            }
+                            setExpandedCache(newExpanded);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-xs mt-1"
+                        >
+                          {expandedCache.has(cache.id) ? '▲ Collapse' : '▼ Expand'}
+                        </button>
+                      </>
                     ) : (
                       <p className="text-sm text-gray-400 italic">No content available</p>
                     )}
