@@ -3,6 +3,7 @@ export enum AiAnalysisType {
   PROGRESS = 'PROGRESS',
   RECOMMENDATION = 'RECOMMENDATION',
   SUMMARY = 'SUMMARY',
+  GENERATE_TIMETABLE = 'GENERATE_TIMETABLE',
 }
 
 export interface AiAnalysisRequest {
