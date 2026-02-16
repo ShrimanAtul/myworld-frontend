@@ -185,9 +185,13 @@ const AiAnalysisPage: React.FC = () => {
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-800 line-clamp-3">
-                      {cache.responseContent}
-                    </p>
+                    {cache.responseContent ? (
+                      <p className="text-sm text-gray-800 line-clamp-3">
+                        {cache.responseContent}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">No content available</p>
+                    )}
                     <div className="mt-2 flex gap-3 text-xs text-gray-600">
                       <span>Tokens: {cache.inputTokens + cache.outputTokens}</span>
                       <span>Cost: ${cache.estimatedCost.toFixed(4)}</span>
