@@ -21,6 +21,7 @@ export interface Goal {
   status: GoalStatus;
   targetDate?: string;
   progressPercentage: number;
+  activityDates?: string[];
   createdAt: string;
   updatedAt: string;
 }
