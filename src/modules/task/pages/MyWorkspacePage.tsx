@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@shared/components';
 import TasksPage from './TasksPage';
 import GoalsPage from './GoalsPage';
@@ -7,7 +8,15 @@ import TimetablePage from './TimetablePage';
 type Tab = 'todos' | 'goals' | 'timetable';
 
 const MyWorkspacePage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('todos');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') as Tab;
+    if (tab && ['todos', 'goals', 'timetable'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   return (
     <Layout>

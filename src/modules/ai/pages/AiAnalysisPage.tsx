@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout, Button, Spinner } from '@shared/components';
 import { useAiAnalyze, useCachedResponses, useDeleteCache, useClearCache } from '@shared/hooks/useAi';
+import { useCreateCollection, useCreateTimetable } from '@shared/hooks/useTimetables';
 import { AiAnalysisType } from '@shared/types/ai';
 
 const AiAnalysisPage: React.FC = () => {
+  const navigate = useNavigate();
   const [analysisType, setAnalysisType] = useState<AiAnalysisType>(AiAnalysisType.RECOMMENDATION);
   const [result, setResult] = useState<any>(null);
   const [expandedCache, setExpandedCache] = useState<Set<string>>(new Set());
@@ -12,6 +15,8 @@ const AiAnalysisPage: React.FC = () => {
   const { data: cachedResponses = [], isLoading: cacheLoading } = useCachedResponses(analysisType);
   const deleteCache = useDeleteCache();
   const clearCache = useClearCache();
+  const createCollection = useCreateCollection();
+  const createTimetable = useCreateTimetable();
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +71,63 @@ const AiAnalysisPage: React.FC = () => {
         return 'Add details in your Goals\' Description field (suitable time, duration, preferences) to help AI create a better timetable. Avoid conflicting time preferences across multiple goals.';
       default:
         return null;
+    }
+  };
+
+  const handleAddToTimetables = async (content: string) => {
+    try {
+      // Parse JSON from AI response (may be wrapped in markdown code block)
+      let jsonStr = content.trim();
+      if (jsonStr.startsWith('```json')) {
+        jsonStr = jsonStr.replace(/```json\s*/, '').replace(/```\s*$/, '').trim();
+      } else if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.replace(/```\s*/, '').replace(/```\s*$/, '').trim();
+      }
+      
+      const entries = JSON.parse(jsonStr);
+      
+      if (!Array.isArray(entries) || entries.length === 0) {
+        alert('No timetable entries found in the response');
+        return;
+      }
+
+      // Create AI-generated collection
+      const now = new Date();
+      const istTime = now.toLocaleString('en-IN', { 
+        timeZone: 'Asia/Kolkata',
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      const collection = await createCollection.mutateAsync({
+        name: `AI Generated - ${istTime}`,
+        description: 'Generated from goals by AI',
+        isDefault: false,
+        isAiGenerated: true,
+      });
+
+      // Create timetable entries
+      for (const entry of entries) {
+        await createTimetable.mutateAsync({
+          collectionId: collection.id,
+          title: entry.title,
+          description: entry.description,
+          type: entry.type,
+          daysOfWeek: entry.daysOfWeek,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+        });
+      }
+
+      alert(`Successfully added ${entries.length} timetable entries!`);
+      navigate('/workspace?tab=timetable');
+    } catch (err) {
+      console.error('Failed to add timetables:', err);
+      alert('Failed to parse or add timetables. Please check the format.');
     }
   };
 
@@ -130,9 +192,20 @@ const AiAnalysisPage: React.FC = () => {
                   )}
                 </div>
                 <p className="text-sm text-gray-800 whitespace-pre-wrap">{result.content}</p>
-                <div className="mt-3 flex gap-4 text-xs text-gray-600">
-                  <span>Input tokens: {result.inputTokens}</span>
-                  <span>Output tokens: {result.outputTokens}</span>
+                <div className="mt-3 flex justify-between items-center">
+                  <div className="flex gap-4 text-xs text-gray-600">
+                    <span>Input tokens: {result.inputTokens}</span>
+                    <span>Output tokens: {result.outputTokens}</span>
+                  </div>
+                  {analysisType === AiAnalysisType.GENERATE_TIMETABLE && (
+                    <Button
+                      size="sm"
+                      onClick={() => handleAddToTimetables(result.content)}
+                      isLoading={createCollection.isPending || createTimetable.isPending}
+                    >
+                      Add to Timetables
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
@@ -209,9 +282,20 @@ const AiAnalysisPage: React.FC = () => {
                     ) : (
                       <p className="text-sm text-gray-400 italic">No content available</p>
                     )}
-                    <div className="mt-2 flex gap-3 text-xs text-gray-600">
-                      <span>Tokens: {cache.inputTokens + cache.outputTokens}</span>
-                      <span>Cost: ${cache.estimatedCost.toFixed(4)}</span>
+                    <div className="mt-2 flex justify-between items-center">
+                      <div className="flex gap-3 text-xs text-gray-600">
+                        <span>Tokens: {cache.inputTokens + cache.outputTokens}</span>
+                        <span>Cost: ${cache.estimatedCost.toFixed(4)}</span>
+                      </div>
+                      {cache.type === AiAnalysisType.GENERATE_TIMETABLE && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleAddToTimetables(cache.responseContent)}
+                          isLoading={createCollection.isPending || createTimetable.isPending}
+                        >
+                          Add to Timetables
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}

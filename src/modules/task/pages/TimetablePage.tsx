@@ -180,7 +180,7 @@ const TimetablePage: React.FC = () => {
         <div className="space-y-4">
           {collections.map((collection) => {
             const collectionTimetables = getCollectionTimetables(collection.id);
-            const isExpanded = expandedCollections.has(collection.id) || collection.isDefault;
+            const isExpanded = expandedCollections.has(collection.id);
 
             return (
               <div key={collection.id} className="bg-white rounded-lg shadow">
@@ -205,33 +205,46 @@ const TimetablePage: React.FC = () => {
                     <p className="text-xs text-gray-500 mt-1">{collectionTimetables.length} entries</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {!collection.isDefault && !collection.isAiGenerated && (
-                      <>
-                        <button
-                          onClick={() => {
-                            setEditingCollection(collection);
-                            setIsCollectionFormOpen(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCollection(collection.id)}
-                          className="text-red-600 hover:text-red-800 text-sm"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
                     {!collection.isDefault && (
                       <button
-                        onClick={() => toggleCollection(collection.id)}
-                        className="text-gray-600 hover:text-gray-800 text-sm ml-2"
+                        onClick={async () => {
+                          try {
+                            await updateCollection.mutateAsync({
+                              id: collection.id,
+                              data: { isDefault: true }
+                            });
+                          } catch (err) {
+                            console.error('Failed to set as default:', err);
+                          }
+                        }}
+                        className="text-green-600 hover:text-green-800 text-sm"
                       >
-                        {isExpanded ? '▼' : '▶'}
+                        Set as Default
                       </button>
                     )}
+                    <button
+                      onClick={() => {
+                        setEditingCollection(collection);
+                        setIsCollectionFormOpen(true);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      Edit
+                    </button>
+                    {!collection.isDefault && (
+                      <button
+                        onClick={() => handleDeleteCollection(collection.id)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Delete
+                      </button>
+                    )}
+                    <button
+                      onClick={() => toggleCollection(collection.id)}
+                      className="text-gray-600 hover:text-gray-800 text-sm ml-2"
+                    >
+                      {isExpanded ? '▼' : '▶'}
+                    </button>
                   </div>
                 </div>
 
