@@ -7,6 +7,7 @@ import MyWorkspacePage from '../modules/task/pages/MyWorkspacePage';
 import ProfilePage from '../modules/user/pages/ProfilePage';
 import PricingPage from '../modules/subscription/pages/PricingPage';
 import SubscriptionsPage from '../modules/subscription/pages/SubscriptionsPage';
+import PaymentPage from '../modules/subscription/pages/PaymentPage';
 import AiAnalysisPage from '../modules/ai/pages/AiAnalysisPage';
 import { useAuthStore } from '../shared/hooks/useAuth';
 
@@ -67,6 +68,14 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <SubscriptionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <PaymentPage />
             </ProtectedRoute>
           }
         />

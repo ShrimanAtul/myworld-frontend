@@ -3,9 +3,12 @@ import { Layout, Button, Spinner } from '@shared/components';
 import { useModules, useModulePlans, useCreateSubscription } from '@shared/hooks/useSubscription';
 import { PlanDuration } from '@shared/types/subscription';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@shared/hooks/useAuth';
+import { UserRole } from '@shared/types/auth';
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const { data: modules = [], isLoading: modulesLoading } = useModules();
   const [selectedModuleId, setSelectedModuleId] = useState<string>('');
   const { data: plans = [], isLoading: plansLoading } = useModulePlans(selectedModuleId);
@@ -18,6 +21,23 @@ const PricingPage: React.FC = () => {
   }, [modules, selectedModuleId]);
 
   const handleSubscribe = async (planId: string) => {
+    // For TEST_CLIENT and CLIENT roles, redirect to payment page
+    if (user?.role === UserRole.TEST_CLIENT || user?.role === UserRole.CLIENT) {
+      // First create a pending subscription
+      try {
+        const subscription = await createSubscription.mutateAsync({
+          planIdRaw: planId,
+          moduleIdRaw: selectedModuleId,
+        });
+        // Redirect to payment page with subscription details
+        navigate(`/payment?planId=${planId}&moduleId=${selectedModuleId}&subscriptionId=${subscription.id}`);
+      } catch (err) {
+        console.error('Failed to create subscription:', err);
+      }
+      return;
+    }
+
+    // For TEST_ADMIN and ADMIN roles, subscribe directly (as before)
     try {
       await createSubscription.mutateAsync({
         planIdRaw: planId,

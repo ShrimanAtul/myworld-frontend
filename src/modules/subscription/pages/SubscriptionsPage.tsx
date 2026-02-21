@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Button, Spinner } from '@shared/components';
 import { useUserSubscriptions, useCancelSubscription } from '@shared/hooks/useSubscription';
 import { SubscriptionStatus } from '@shared/types/subscription';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const SubscriptionsPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
   const { data: subscriptions = [], isLoading } = useUserSubscriptions();
   const cancelSubscription = useCancelSubscription();
+
+  useEffect(() => {
+    // Check if redirected from successful payment
+    if (searchParams.get('payment') === 'success') {
+      setShowSuccessBanner(true);
+      // Remove the query parameter
+      setSearchParams({});
+      // Auto-hide after 5 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessBanner(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [searchParams, setSearchParams]);
 
   const handleCancel = async (id: string) => {
     if (window.confirm('Are you sure you want to cancel this subscription?')) {
@@ -36,6 +53,27 @@ const SubscriptionsPage: React.FC = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {showSuccessBanner && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start">
+            <svg className="w-6 h-6 text-green-600 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1">
+              <h3 className="text-green-900 font-medium">Payment Successful!</h3>
+              <p className="text-green-800 text-sm mt-1">
+                Your subscription has been activated. You now have full access to all features.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSuccessBanner(false)}
+              className="text-green-600 hover:text-green-800 ml-3"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        )}
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">My Subscriptions</h1>
