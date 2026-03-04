@@ -30,6 +30,9 @@ export interface RazorpayOptions {
     color: string;
   };
   handler: (response: RazorpayResponse) => void;
+  modal?: {
+    ondismiss?: () => void;
+  };
 }
 
 export interface RazorpayResponse {

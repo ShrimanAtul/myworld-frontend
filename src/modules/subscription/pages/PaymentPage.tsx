@@ -6,7 +6,7 @@ import { paymentApi, RazorpayOptions, RazorpayResponse } from '@shared/api/payme
 import { useModulePlans } from '@shared/hooks/useSubscription';
 
 // Razorpay key - in production, this should come from environment variable
-const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy';
+const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SMIf3JVfjpNoZ6';
 
 const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -73,12 +73,16 @@ const PaymentPage: React.FC = () => {
           // Navigate to subscriptions page
           navigate('/subscriptions?payment=success');
         },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+            setError('Payment was cancelled. Please try again.');
+          },
+        },
       };
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
-
-      setIsProcessing(false);
     } catch (err) {
       console.error('Payment error:', err);
       setError('Failed to initiate payment. Please try again.');
