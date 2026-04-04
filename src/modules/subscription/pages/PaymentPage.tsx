@@ -67,11 +67,20 @@ const PaymentPage: React.FC = () => {
           color: '#2563eb', // blue-600
         },
         handler: async (response: RazorpayResponse) => {
-          // Payment successful
           console.log('Payment successful:', response);
           
-          // Navigate to subscriptions page
-          navigate('/subscriptions?payment=success');
+          try {
+            await paymentApi.verifyPayment({
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+            });
+            navigate('/subscriptions?payment=success');
+          } catch (err) {
+            console.error('Payment verification failed:', err);
+            setError('Payment verification failed. Please contact support.');
+            setIsProcessing(false);
+          }
         },
         modal: {
           ondismiss: () => {

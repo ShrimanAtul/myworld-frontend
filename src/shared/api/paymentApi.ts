@@ -49,9 +49,19 @@ declare global {
   }
 }
 
+export interface VerifyPaymentRequest {
+  razorpayPaymentId: string;
+  razorpayOrderId: string;
+  razorpaySignature: string;
+}
+
 export const paymentApi = {
   createOrder: async (data: CreateOrderRequest): Promise<CreateOrderResponse> => {
     const response = await apiClient.post<CreateOrderResponse>('/payments/create-order', data);
     return response.data;
+  },
+  
+  verifyPayment: async (data: VerifyPaymentRequest): Promise<void> => {
+    await apiClient.post('/payments/verify', data);
   },
 };
