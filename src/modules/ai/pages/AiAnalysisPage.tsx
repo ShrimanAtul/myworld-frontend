@@ -23,8 +23,10 @@ const AiAnalysisPage: React.FC = () => {
     try {
       const response = await analyze.mutateAsync({ type: analysisType, input: '' });
       setResult(response);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Analysis failed:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || 'Analysis failed';
+      alert(errorMessage);
     }
   };
 
